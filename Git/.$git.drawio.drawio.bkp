@@ -1,0 +1,109 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.1.2 Chrome/138.0.7204.243 Electron/37.4.0 Safari/537.36" version="28.1.2">
+  <diagram name="第 1 页" id="6nkxxAwNm8WZJsSnky1q">
+    <mxGraphModel dx="837" dy="498" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-1" value="" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.database;whiteSpace=wrap;fillColor=#FF6666;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="430" y="60" width="66" height="82.75" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-3" value="" style="html=1;shape=mxgraph.basic.isocube;isoAngle=16.17;strokeWidth=2;fillColor=light-dark(#000000,#C75F1A);strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="250" y="60" width="80" height="85.5" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-5" value="" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;editableCssRules=.*;image=data:image/svg+xml,PHN2ZyB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBvdmVyZmxvdz0iaGlkZGVuIiB4bWw6c3BhY2U9InByZXNlcnZlIiBoZWlnaHQ9IjU2IiB3aWR0aD0iNzMuOTk5OTAwODE3ODcxMSIgdmlld0JveD0iMC41MDAwOTkxODIxMjg5MDYyIDAuNSA3My45OTk5MDA4MTc4NzExIDU2Ij48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNzUgLTYwNikiPjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgZmlsbD0iI0Y0QjE4MyIgc3Ryb2tlLW1pdGVybGltaXQ9IjgiIHN0cm9rZT0iIzAwMDAwMCIgZD0iTTE0NS41IDY2Mi41IDc5LjUwMDEgNjYyLjVDNzcuMzAwMSA2NjIuNSA3NS41MDAxIDY2MC43IDc1LjUwMDEgNjU4LjVMNzUuNTAwMSA2MTAuNUM3NS41MDAxIDYwOC4zIDc3LjMwMDEgNjA2LjUgNzkuNTAwMSA2MDYuNUw5OC4zIDYwNi41Qzk5LjEwMDEgNjA2LjUgOTkuOTAwMSA2MDYuNyAxMDAuNSA2MDcuMkwxMTEuNSA2MTQuNSAxNDUuNSA2MTQuNUMxNDcuNyA2MTQuNSAxNDkuNSA2MTYuMyAxNDkuNSA2MTguNUwxNDkuNSA2NTguNUMxNDkuNSA2NjAuNyAxNDcuNyA2NjIuNSAxNDUuNSA2NjIuNVoiLz48L2c+PC9zdmc+;" vertex="1" parent="1">
+          <mxGeometry x="70" y="73.07" width="74.82" height="56.62" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-6" value="" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.github_code;pointerEvents=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="67.88" width="70" height="67" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-7" value="本地工作目录" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="57.41" y="142.75" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-8" value="暂存区" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="260" y="142.75" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-9" value="本地仓库" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="428" y="145.5" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-10" value="Github远程仓库" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="570" y="145.5" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-11" value="" style="line;strokeWidth=2;direction=south;html=1;strokeColor=#FF3333;" vertex="1" parent="1">
+          <mxGeometry x="102" y="173" width="10" height="327" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-12" value="" style="line;strokeWidth=2;direction=south;html=1;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="285" y="172.5" width="10" height="327.5" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-13" value="" style="line;strokeWidth=2;direction=south;html=1;strokeColor=#CC6600;" vertex="1" parent="1">
+          <mxGeometry x="458" y="172.75" width="10" height="327" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-14" value="" style="line;strokeWidth=2;direction=south;html=1;strokeColor=#00FF00;" vertex="1" parent="1">
+          <mxGeometry x="620" y="173" width="10" height="327" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-15" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.087;entryY=0.356;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.088;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;strokeColor=#88FF31;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="463" y="220.07599999999985" as="sourcePoint" />
+            <mxPoint x="108.44000000000005" y="219.99899999999997" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-16" value="初始化仓库 git init" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="220" y="190" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-17" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.299;exitY=0.6;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;strokeColor=#88FF31;entryX=0.295;entryY=0.567;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="vUGPImXYDG2hyQDF4WVP-14" target="vUGPImXYDG2hyQDF4WVP-11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="466.55999999999995" y="270.07599999999985" as="sourcePoint" />
+            <mxPoint x="110" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-18" value="克隆仓库 git clone" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="223.55999999999995" y="240" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-19" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.088;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;strokeColor=#88FF31;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="106.28" y="320" as="sourcePoint" />
+            <mxPoint x="290" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-20" value="添加到暂存区 git add" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="130" y="290" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-21" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.088;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;strokeColor=#88FF31;entryX=0.45;entryY=0.593;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="vUGPImXYDG2hyQDF4WVP-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="285" y="320" as="sourcePoint" />
+            <mxPoint x="460" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-22" value="提交代码到本地仓库 git commit" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="278.72" y="290" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-23" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.601;exitY=0.456;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;strokeColor=#88FF31;" edge="1" parent="1" source="vUGPImXYDG2hyQDF4WVP-11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="111.27999999999999" y="370" as="sourcePoint" />
+            <mxPoint x="290" y="370" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-24" value="查看状态 git status" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="140" y="340" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-25" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.601;exitY=0.456;exitDx=0;exitDy=0;exitPerimeter=0;dashed=1;strokeColor=#88FF31;entryX=0.758;entryY=0.653;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="vUGPImXYDG2hyQDF4WVP-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="108.5" y="420" as="sourcePoint" />
+            <mxPoint x="285" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-26" value="查看提交历史 git log" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="136.5" y="390" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-27" value="" style="endArrow=classic;html=1;rounded=0;dashed=1;strokeColor=#88FF31;exitX=0.846;exitY=0.37;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.849;entryY=0.642;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="vUGPImXYDG2hyQDF4WVP-13" target="vUGPImXYDG2hyQDF4WVP-14">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="450" y="450.0459999999999" as="sourcePoint" />
+            <mxPoint x="616.51" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUGPImXYDG2hyQDF4WVP-28" value="推送到远程仓库 git push" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="476" y="420" width="150" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
