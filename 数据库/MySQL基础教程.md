@@ -509,7 +509,7 @@ CREATE TABLE account (
 
 ### YEAR
 
-`YEAR` 用于保存年份信息，格式通常为
+`YEAR` 仅存储**年份**，格式为`YYYY`
 
 示例：
 
@@ -527,7 +527,7 @@ CREATE TABLE student_profile (
 
 ### DATE
 
-`DATE` 用于保存日期，不包含时分秒，格式通常为 `YYYY-MM-DD`。
+`DATE` 仅存储**日期**（无时间），格式为`YYYY-MM-DD`
 
 示例：
 
@@ -543,7 +543,7 @@ CREATE TABLE holiday (
 
 ### TIME
 
-`TIME` 用于保存时间值，可以表示一天中的某个时间点，也可以表示一个时间间隔，格式为
+`TIME` 仅存储**时间**（无日期），格式为`HH:MM:SS`
 
 示例：
 
@@ -557,9 +557,9 @@ CREATE TABLE work_time (
 
 
 
-### DATETIME类型
+### DATETIME
 
-`DATETIME` 用于保存完整日期和时间，格式通常为 `YYYY-MM-DD HH:MM:SS`。
+`DATETIME` 存储**日期 + 时间**，格式为`YYYY-MM-DD HH:MM:SS`
 
 示例：
 
@@ -573,9 +573,9 @@ CREATE TABLE article (
 
 
 
-### TIMESTAMP类型
+### TIMESTAMP
 
-`TIMESTAMP` 同样可以保存日期和时间，但更常用于记录系统时间，例如创建时间、更新时间。
+`TIMESTAMP` 同样存储**日期 + 时间**
 
 示例：
 
@@ -589,36 +589,492 @@ CREATE TABLE user_log (
 );
 ```
 
-这个例子里：
-
-- `created_at` 在插入时自动写入当前时间
-- `updated_at` 在更新记录时自动刷新
-
-因此 `TIMESTAMP` 很适合审计字段。
-
-
-
-### DATETIME和TIMESTAMP的区别
-
-可以这样理解：
-
-- `DATETIME` 更适合业务层面的“真实时间点”
-- `TIMESTAMP` 更适合系统自动维护的时间字段
-
-常见实践：
-
-- 订单创建时间、日志时间：常用 `TIMESTAMP`
-- 活动开始时间、预约时间：常用 `DATETIME`
-
-
-
-### 小结
-
-如果只需要年份，用 `YEAR`；只需要日期，用 `DATE`；只需要时间，用 `TIME`；需要完整日期时间，则常在 `DATETIME` 和 `TIMESTAMP` 之间选择。选型的关键不只是格式，还要考虑字段的业务语义。
 
 
 
 
+### ⭐DATETIME和TIMESTAMP的区别
+
+DATETIME：保存纯字符串格式的日期时间，你插入什么，就存什么。
+
+```sql
+CREATE TABLE test_datetime (
+    dt DATETIME
+);
+
+INSERT INTO test_datetime VALUES ('2026-05-26 12:00:00');
+```
+
+无论数据库时区怎么变：
+
+```sql
+SELECT dt FROM test_datetime;
+```
+
+永远都是：
+
+```sql
+2026-05-26 12:00:00
+```
+
+------
+
+TIMESTAMP：保存“UTC时间戳”
+
+插入时：
+
+- 把当前会话时区转换成 UTC 保存
+
+查询时：
+
+- 再转换回当前会话时区显示
+
+当前 MySQL 时区：
+
+```sql
+SET time_zone = '+08:00';
+```
+
+插入：
+
+```sql
+CREATE TABLE test_ts (
+    ts TIMESTAMP
+);
+
+INSERT INTO test_ts VALUES ('2026-05-26 12:00:00');
+```
+
+实际保存的是：
+
+```sql
+2026-05-26 04:00:00 UTC
+```
+
+切换时区：
+
+```sql
+SET time_zone = '+00:00';
+```
+
+查询：
+
+```sql
+SELECT ts FROM test_ts;
+```
+
+结果变成：
+
+```sql
+2026-05-26 04:00:00
+```
+
+------
+
+DATETIME 适合“业务时间”，即用户看到的真实时间。例如：
+
+- 会议开始时间
+- 生日
+- 航班时间
+- 活动时间
+- 订单约定送达时间
+
+这些时间不应该因为服务器时区变化而变化
+
+TIMESTAMP 适合“系统时间”，系统记录行为发生的时间点。例如：
+
+- 创建时间
+- 更新时间
+- 日志时间
+- 数据同步时间
+- 审计字段
+
+
+
+示例
+
+```sql
+CREATE TABLE user (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+- 自动更新时间
+- 节省空间
+
+
+
+
+
+## 字符串类型
+
+### CHAR和VARCHAR
+
+`CHAR` 是定长字符串（字符长度（0~255）），固定长度存储（容易浪费存储空间），不足长度会自动补空格，查询时尾部空格通常会被忽略
+
+例如：
+
+- 性别（M/F）
+- 身份证号
+- 手机号（固定长度）
+- MD5值
+- 国家编码
+
+------
+
+`VARCHAR` 是变长字符串（最常用）（最大长度65535），按实际内容长度存储（实际占用 = 内容长度 + 1~2字节长度记录）
+
+例如：
+
+- 用户昵称
+- 邮箱
+- 地址
+- 商品名称
+- 评论标题
+
+```sql
+CREATE TABLE member (
+  id int NOT NULL AUTO_INCREMENT,
+  gender char(1) NOT NULL DEFAULT 'U',
+  name varchar(50) NOT NULL,
+  mobile varchar(20) NOT NULL DEFAULT '',
+  PRIMARY KEY (id)
+);
+```
+
+
+
+### TEXT
+
+存储长文本
+
+MySQL 提供 4 种 TEXT：
+
+| 类型       | 最大长度 |
+| ---------- | -------- |
+| TINYTEXT   | 255B     |
+| TEXT       | 64KB     |
+| MEDIUMTEXT | 16MB     |
+| LONGTEXT   | 4GB      |
+
+| 问题                 | 说明             |
+| -------------------- | ---------------- |
+| 查询较慢             | 大对象读取成本高 |
+| 不适合频繁排序       | 性能较差         |
+| 默认不能有完整默认值 | 某些版本限制     |
+| 索引有限制           | 需指定前缀索引   |
+
+适合：
+
+- 文章内容
+- 富文本
+- JSON文本
+- 日志
+
+
+
+### ENUM
+
+枚举类型，字段值必须是预先定义好的若干个值之一
+
+```sql
+CREATE TABLE orders (
+  id int NOT NULL AUTO_INCREMENT,
+  status enum('pending', 'paid', 'closed') NOT NULL DEFAULT 'pending',
+  PRIMARY KEY (id)
+);
+```
+
+优点
+
+- 节省空间
+- 数据合法性强
+- 查询方便
+
+缺点
+
+- 修改枚举值麻烦
+- 扩展性差
+
+适合
+
+- 性别
+- 状态
+- 星期
+- 订单状态
+
+
+
+枚举类型限制字段只能取指定范围内的值，减少脏数据。但如果业务状态经常变化，`ENUM` 后期维护会相对麻烦。
+
+
+
+### SET
+
+`SET` 用于保存一组可选值中的一个或多个值。
+
+适合的场景：
+
+- 用户兴趣标签
+- 星期选择
+- 权限标记
+
+```sql
+CREATE TABLE user_tag (
+  id int NOT NULL AUTO_INCREMENT,
+  hobby set('music', 'movie', 'sports', 'travel') DEFAULT NULL,
+  PRIMARY KEY (id)
+);
+```
+
+例如一条记录可以同时保存 `music, sports` 这样的组合。
+
+
+
+## 二进制类型
+
+MySQL 的二进制类型（Binary Types）主要用于存储：
+
+- 原始字节数据（bytes）
+- 文件内容
+- 图片/音频/视频
+- 加密数据
+- 哈希值
+- 不需要字符集转换的数据
+
+它和字符串类型（CHAR/VARCHAR/TEXT）最大的区别：
+
+> 二进制类型按“字节”处理，而不是按“字符”处理。
+
+
+
+### BINARY和VARBINARY
+
+固定/变长长度二进制数据
+
+示例：
+
+```sql
+CREATE TABLE api_secret (
+  id int NOT NULL AUTO_INCREMENT,
+  token binary(16) NOT NULL,              # 16字节
+  secret varbinary(64) NOT NULL,
+  PRIMARY KEY (id)
+);
+```
+
+场景：
+
+- 加密内容
+- Session数据
+- token
+
+> [!NOTE]
+>
+> 有时存BINARY比VARCHAR更节省空间，例如UUID（128bit），128 ÷ 8 = 16 byte，BINARY(16)，刚好够存 UUID 原始值。
+>
+> 常见 UUID 格式：550e8400-e29b-41d4-a716-446655440000，32 个十六进制字符加上4 个 `-`
+>
+> BINARY(16) 存：55 0e 84 00 e2 9b 41 d4 ...，共16字节
+
+
+
+### BLOB
+
+存储较大的二进制对象
+
+场景：
+
+- 图片二进制内容
+- 文件内容
+- 音频片段
+
+```sql
+CREATE TABLE images (
+    id INT PRIMARY KEY,
+    img BLOB
+);
+```
+
+```sql
+INSERT INTO images VALUES (
+    1,
+    LOAD_FILE('/tmp/a.png')
+);
+```
+
+> [!WARNING]
+>
+> 大对象直接存数据库虽然方便，但也可能带来备份、传输和查询性能压力，因此推荐对象存储，只在数据库里保存 URL 或元信息。
+
+
+
+
+
+### BIT
+
+用于存储位数据，范围：1 ~ 64
+
+适合：
+
+- 开关状态
+- 权限标志
+- 布尔组合
+- 二进制位运算
+- 节省存储空间
+
+```sql
+CREATE TABLE user (
+    id INT,
+    is_deleted BIT(1)
+);
+```
+
+```sql
+INSERT INTO user VALUES (1, b'0');
+INSERT INTO user VALUES (2, b'1');
+```
+
+BIT 的字面量写法
+
+二进制
+
+```sql
+INSERT INTO t VALUES (b'1010');
+```
+
+十六进制
+
+```sql
+INSERT INTO t VALUES (0x0A);
+```
+
+8位
+
+```sql
+CREATE TABLE role (
+    id INT,
+    permission BIT(8)
+);
+```
+
+```sql
+INSERT INTO role VALUES (1, b'00000111');
+```
+
+星期标记
+
+```sql
+1111100
+```
+
+表示工作日
+
+
+
+## 运算符
+
+### 算术运算符
+
+常见算术运算符：
+
+- `+`：加法
+- `-`：减法
+- `*`：乘法
+- `/`：除法
+- `%`：取余
+
+
+
+示例：
+
+```sql
+SELECT price, quantity, price * quantity AS total_amount FROM order_item;
+```
+
+
+
+### 比较运算符
+
+常见比较运算符：
+
+- `=`：等于
+- `<>` 或 `!=`：不等于
+- `>`：大于
+- `<`：小于
+- `>=`：大于等于
+- `<=`：小于等于
+
+
+
+示例：
+
+```sql
+SELECT * FROM user WHERE age = 18;
+SELECT * FROM user WHERE age >= 18;
+SELECT * FROM user WHERE status <> 'disabled';
+```
+
+实际查询中还经常结合以下关键字：
+
+- `BETWEEN ... AND ...`
+- `IN (...)`
+- `LIKE`
+- `IS NULL`
+
+例如：
+
+```sql
+SELECT * FROM orders WHERE amount BETWEEN 100 AND 500;
+SELECT * FROM user WHERE city IN ('北京', '上海');
+SELECT * FROM article WHERE title LIKE 'MySQL%';
+SELECT * FROM profile WHERE mobile IS NULL;
+```
+
+
+
+### 逻辑运算符
+
+常见逻辑运算符：
+
+- `AND`：并且
+- `OR`：或者
+- `NOT`：非
+
+
+
+示例：
+
+```sql
+SELECT * FROM user WHERE age >= 18 AND city = '上海';
+
+SELECT * FROM user WHERE city = '北京' OR city = '深圳';
+
+SELECT * FROM user WHERE NOT status = 'disabled';
+```
+
+在复杂条件中，建议适当使用括号，避免优先级造成理解偏差
+
+```sql
+SELECT * FROM user
+WHERE (city = '上海' OR city = '杭州') AND status = 'enabled';
+```
+
+
+
+### 位运算符
+
+常见位运算符：
+
+- `&`：按位与
+- `|`：按位或
+- `^`：按位异或
+- `~`：按位取反
+- `<<`：左移
+- `>>`：右移
 
 
 
@@ -626,9 +1082,412 @@ CREATE TABLE user_log (
 
 
 
+# ⭐数据表的基本操作
+
+## 创建数据表
+
+一个数据库中可以包含多张表，而每张表都由**字段（列）**和**记录（行）**组成。
+
+### 数据表结构设计
+
+设计表结构时，需要重点考虑以下内容：
+
+1、字段（列）存什么内容
+
+2、选择合适的数据类型
+
+3、是否允许 NULL，有无 DEFAULT 默认值
+
+4、主键
+
+5、外键，建立表与表之间的关系？
+
+6、唯一约束（UNIQUE）
+
+7、经常查询的字段，加索引？
+
+8、需要 COMMENT 吗？
+
+......
 
 
-# 数据表的基本操作
+
+### CREATE TABLE
+
+```sql
+CREATE TABLE 表名 (
+  字段名1 数据类型 [约束条件],
+  字段名2 数据类型 [约束条件],
+  ...
+);
+```
+
+```sql
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    age INT,
+    email VARCHAR(100) UNIQUE,
+    status INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+| 字段       | 说明             |
+| ---------- | ---------------- |
+| id         | 主键约束、自增   |
+| username   | 用户名，不能为空 |
+| password   | 密码，不能为空   |
+| age        | 年龄             |
+| email      | 邮箱，唯一值     |
+| status     | 默认状态1        |
+| created_at | 创建时间，默认值 |
+
+
+
+### 主键约束（PRIMARY KEY）
+
+主键：
+
+- 唯一
+- 不可重复
+- 不允许 NULL
+
+主键：用于唯一标识表中的每一条记录，一张表只能有一个主键。
+
+```sql
+CREATE TABLE student (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+```
+
+```sql
+CREATE TABLE student (
+    id INT,
+    name VARCHAR(50),
+    PRIMARY KEY(id)
+);
+```
+
+也可以定义联合主键：多个字段共同作为主键，多个字段组合才能唯一确定某条记录
+
+```sql
+CREATE TABLE score (
+  student_id int NOT NULL,
+  course_id int NOT NULL,
+  score decimal(5,2) DEFAULT NULL,
+  PRIMARY KEY (student_id, course_id)
+);
+```
+
+
+
+### ✨外键约束（FOREIGN KEY）
+
+1、外键用于建立表与表之间的关联关系，通常引用另一张表的主键或唯一键。
+
+2、外键保证数据引用的有效性。例如：
+
+- 订单必须属于某个用户
+- 学生必须属于某个班级
+
+```sql
+CREATE TABLE classes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    class_name VARCHAR(50) NOT NULL
+);
+```
+
+```sql
+CREATE TABLE students (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    class_id INT,
+    
+    FOREIGN KEY(class_id) REFERENCES classes(id)
+);
+```
+
+students.class_id 是外键，引用 classes.id
+
+约束效果：学生表中的班级编号必须在班级表中存在
+
+```sql
+INSERT INTO students(name, class_id)
+VALUES('Tom', 10);
+```
+
+如果：classes 表中没有 id=10，报错，引用的数据不存在
+
+------
+
+🌠更新与删除规则
+
+删除或更新主表记录时，从表中的关联数据自动处理
+
+```sql
+ON DELETE CASCADE
+ON DELETE SET NULL
+ON UPDATE CASCADE
+```
+
+```sql
+CREATE TABLE classes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    class_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE students (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    class_id INT,
+
+    CONSTRAINT fk_class   # CONSTRAINT = 约束命名，fk_class 是给这个外键约束起的名字，方便删除此外键等
+    FOREIGN KEY(class_id) REFERENCES classes(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+);
+```
+
+主表：classes，从表：students
+
+如果某个班级被删除（id = 1），所有 `class_id = 1` 的学生的`class_id`变为 NULL 
+
+如果某个班级的 id 发生变化，那么 students 表会自动更新 class_id
+
+
+
+## 查看数据表结构
+
+创建完数据表之后，通常需要确认表结构是否正确，例如字段名是否写对、数据类型是否符合预期、主键和默认值是否生效。这时就需要查看数据表结构。
+
+```sql
+DESCRIBE user;
+DESC user;
+```
+
+常会返回以下几类信息：
+
+- `Field`：字段名
+- `Type`：字段类型
+- `Null`：是否允许为空
+- `Key`：是否为主键、索引等
+- `Default`：默认值
+- `Extra`：附加信息，例如 `auto_increment`
+
+------
+
+若还想看到完整的建表 SQL，应该使用 `SHOW CREATE TABLE`
+
+```sql
+SHOW CREATE TABLE user;
+```
+
+
+
+## 修改数据表
+
+### 修改表名
+
+```sql
+RENAME TABLE old_table TO new_table;
+```
+
+```sql
+ALTER TABLE old_table RENAME TO new_table;  # MySQL 中 RENAME TO 可简写为 RENAME
+```
+
+
+
+### 修改字段
+
+MODIFY（只改类型或约束，不改字段名）
+
+```sql
+ALTER TABLE table_name
+MODIFY COLUMN column_name new_datatype;
+```
+
+```sql
+ALTER TABLE students
+MODIFY COLUMN name VARCHAR(100);
+```
+
+CHANGE（可以改字段名 + 类型）
+
+```sql
+ALTER TABLE table_name
+CHANGE old_column new_column new_datatype;
+```
+
+```sql
+ALTER TABLE students
+CHANGE name student_name VARCHAR(100);
+```
+
+注意：即使字段名不变，也要把字段名写两次；仅修改字段名，类型也要写完整。
+
+
+
+
+
+### 添加字段
+
+```sql
+ALTER TABLE table_name
+ADD COLUMN column_name datatype [约束];
+```
+
+示例：
+
+```sql
+ALTER TABLE students
+ADD COLUMN age INT;
+```
+
+```sql
+ALTER TABLE students
+ADD COLUMN status VARCHAR(20) DEFAULT 'active';
+```
+
+默认情况下，新字段会加在表末尾。如果想指定位置，可以使用 `AFTER`：
+
+```sql
+ALTER TABLE students
+ADD COLUMN email VARCHAR(100) AFTER name;
+```
+
+
+
+### 删除字段
+
+```sql
+ALTER TABLE table_name
+DROP COLUMN column_name;
+```
+
+
+
+## 删除数据表
+
+如果一张表没有被其他表通过外键关联，可以直接删除。
+
+```sql
+DROP TABLE users;
+```
+
+```sql
+DROP TABLE users, orders;
+```
+
+可以使用 `IF EXISTS`
+
+需要注意，`DROP TABLE` 会同时删除：
+
+- 表结构
+- 表中的所有数据
+- 与该表直接相关的索引定义
+
+所以和“删除表中数据”不是一回事
+
+------
+
+如果一张表被外键引用，直接删除会失败。
+
+```sql
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+CREATE TABLE orders (
+    id INT PRIMARY KEY,
+    user_id INT,
+    CONSTRAINT fk_orders_users
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+`users` 是主表，被引用，删除报错：
+
+```sql
+Cannot drop table 'users' referenced by a foreign key constraint
+```
+
+从表还依赖此主表，为了保证引用完整性，不允许直接删除。
+
+
+
+常见处理方式：
+
+1、先删除子表
+
+```sql
+DROP TABLE orders;
+DROP TABLE users;
+```
+
+2、先删除外键约束
+
+```sql
+ALTER TABLE orders DROP FOREIGN KEY fk_orders_users;
+DROP TABLE users;
+```
+
+
+
+------
+
+建议：
+
+- 备份数据
+- 检查依赖
+- 软删除、逻辑删除（加一个字段来表示是否删除）
+- ......
+
+```sql
+CREATE TABLE users_backup AS SELECT * FROM users;   # 备份users表
+```
+
+
+
+
+
+# MySQL函数
+
+## 数学函数
+
+### 取整
+
+
+
+
+
+### 随机数
+
+
+
+## 字符串函数
+
+
+
+
+
+## 日期时间函数
+
+
+
+
+
+## 条件判断函数
+
+
+
+
+
+## 加密函数
 
 
 
@@ -636,9 +1495,7 @@ CREATE TABLE user_log (
 
 
 
-
-
-# ⭐查询数据
+# ⭐⭐⭐查询数据
 
 
 
@@ -662,7 +1519,7 @@ CREATE TABLE user_log (
 
 
 
-# MySQL函数
+
 
 
 
