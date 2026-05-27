@@ -1459,39 +1459,474 @@ CREATE TABLE users_backup AS SELECT * FROM users;   # 备份users表
 
 ## 数学函数
 
-### 取整
+### ROUND()
+
+`ROUND()` 用于对数字进行四舍五入。
+
+```sql
+ROUND(数字, 保留小数位数)
+```
+
+```sql
+SELECT ROUND(3.6);
+```
+
+结果：
+
+```
+4
+```
+
+```sql
+SELECT ROUND(3.1415926, 2);
+```
+
+结果：
+
+```
+3.14
+```
 
 
 
+### CEIL() / CEILING()
+
+返回大于等于该数的最小整数。
+
+```sql
+CEIL(数字)
+```
+
+```sql
+SELECT CEIL(3.1);
+```
+
+结果：
+
+```
+4
+```
 
 
-### 随机数
+
+### FLOOR()
+
+返回小于等于该数的最大整数。
+
+```sql
+FLOOR(数字)
+```
+
+```sql
+SELECT FLOOR(3.9);
+```
+
+结果：
+
+```
+3
+```
+
+
+
+### RAND()
+
+生成随机数。
+
+```sql
+RAND()
+```
+
+返回值范围：
+
+```
+0 ~ 1
+```
+
+生成随机数
+
+```sql
+SELECT RAND();
+```
+
+随机查询一条数据
+
+```sql
+SELECT * FROM student
+ORDER BY RAND()
+LIMIT 1;
+```
 
 
 
 ## 字符串函数
 
+### CHAR_LENGTH()
 
+计算字符串中的字符个数。
+
+> 中文算一个字符。
+
+```sql
+CHAR_LENGTH(字符串)
+```
+
+```sql
+SELECT CHAR_LENGTH('hello');
+```
+
+结果：
+
+```
+5
+```
+
+```sql
+SELECT CHAR_LENGTH('你好');
+```
+
+结果：
+
+```
+2
+```
+
+
+
+### LENGTH()
+
+计算字符串占用的字节数。
+
+> UTF-8 编码下，一个中文通常占 3 个字节。
+
+```sql
+LENGTH(字符串)
+```
+
+```sql
+SELECT LENGTH('hello');
+```
+
+结果：
+
+```
+5
+```
+
+```sql
+SELECT LENGTH('你好');
+```
+
+结果（UTF-8）：
+
+```
+6
+```
+
+
+
+### CONCAT()
+
+用于拼接字符串。
+
+```sql
+CONCAT(字符串1, 字符串2, ...)
+```
+
+```sql
+SELECT CONCAT('Hello', ' ', 'World');
+```
+
+结果：
+
+```
+Hello World
+```
+
+```sql
+SELECT CONCAT(first_name, last_name)
+FROM student;
+```
+
+
+
+### REPLACE()
+
+替换字符串中的内容。
+
+```sql
+REPLACE(原字符串, 被替换内容, 新内容)
+```
+
+```sql
+SELECT REPLACE('I like C++', 'C++', 'MySQL');
+```
+
+结果：
+
+```
+I like MySQL
+```
+
+
+
+### STRCMP()
+
+比较两个字符串。
+
+```sql
+STRCMP(字符串1, 字符串2)
+```
+
+返回值：
+
+| 返回值 | 说明         |
+| ------ | ------------ |
+| 0      | 相等         |
+| 1      | 前者大于后者 |
+| -1     | 前者小于后者 |
+
+
+
+```sql
+SELECT STRCMP('abc', 'abc');
+```
+
+结果：
+
+```sql
+0
+SELECT STRCMP('bcd', 'abc');
+```
+
+结果：
+
+```
+1
+```
+
+
+
+### INSTR()
+
+查找子字符串首次出现的位置。
+
+没找到通常返回 0
+
+```sql
+INSTR(原字符串, 子字符串)
+```
+
+```sql
+SELECT INSTR('Hello MySQL', 'MySQL');
+```
+
+结果：
+
+```
+7
+```
 
 
 
 ## 日期时间函数
 
+### NOW()
 
+返回当前日期和时间。
+
+```sql
+NOW()
+```
+
+```sql
+SELECT NOW();
+```
+
+结果：
+
+```
+2026-05-27 10:30:00
+```
+
+
+
+### DATE_FORMAT()
+
+按指定格式显示日期。
+
+```
+DATE_FORMAT(日期, 格式)
+```
+
+常用格式符
+
+| 格式符 | 说明     |
+| ------ | -------- |
+| %Y     | 四位年份 |
+| %m     | 两位月份 |
+| %d     | 两位日期 |
+| %H     | 小时     |
+| %i     | 分钟     |
+| %s     | 秒       |
+
+示例1：格式化日期
+
+```sql
+SELECT DATE_FORMAT(NOW(), '%Y-%m-%d');
+```
+
+结果：
+
+```
+2026-05-27
+```
+
+示例2：格式化时间
+
+```sql
+SELECT DATE_FORMAT(NOW(), '%Y年%m月%d日 %H:%i:%s');
+```
+
+结果：
+
+```
+2026年05月27日 10:30:00
+```
 
 
 
 ## 条件判断函数
 
+### IF() 
 
+类似程序中的 if-else。
+
+```sql
+IF(条件, 真值, 假值)
+```
+
+```sql
+SELECT IF(80 >= 60, '及格', '不及格');
+```
+
+结果：
+
+```
+及格
+```
+
+
+
+### IFNULL()
+
+判断是否为 NULL。
+
+```sql
+IFNULL(值, 替换值)
+```
+
+```sql
+SELECT IFNULL(NULL, '默认值');
+```
+
+结果：
+
+```
+默认值
+```
+
+
+
+
+
+### CASE WHEN
+
+实现多条件判断。
+
+```sql
+CASE
+    WHEN 条件1 THEN 结果1
+    WHEN 条件2 THEN 结果2
+    ELSE 默认结果
+END
+```
+
+```sql
+SELECT name, score,
+       CASE
+           WHEN score >= 90 THEN '优秀'
+           WHEN score >= 60 THEN '及格'
+           ELSE '不及格'
+       END AS grade
+FROM student;
+```
 
 
 
 ## 加密函数
 
+### PASSWORD() 
+
+```sql
+PASSWORD(字符串)
+```
+
+```sql
+SELECT PASSWORD('123456');
+```
 
 
 
+`PASSWORD()` 是 MySQL 内部认证函数。在 MySQL 8.0 中已经不推荐开发中使用。
+
+
+
+### MD5() 
+
+生成 32 位十六进制字符串
+
+`MD5` 已经不适合用于高安全要求的密码存储，只适合做一般性的摘要或兼容旧系统
+
+```sql
+MD5(字符串)
+```
+
+```sql
+SELECT MD5('123456');
+```
+
+结果：
+
+```
+e10adc3949ba59abbe56e057f20f883e 
+```
+
+
+
+### ENCODE和DECODE
+
+用于按指定密码对字符串进行编码和解码
+
+```sql
+SELECT ENCODE('hello', 'key123');
+SELECT DECODE(ENCODE('hello', 'key123'), 'key123');
+```
+
+对低敏感内容做简单隐藏
+
+对于真正的安全场景，例如密码、密钥、用户隐私数据，不能依赖这类简单函数作为完整安全方案
+
+
+
+
+
+### 建议
+
+- 密码不要明文存储。
+- 不要把 `MD5()` 当作高安全密码方案。
+- 不要把 `PASSWORD()` 当作业务密码存储方式。
+- 更高安全需求应交给应用层成熟加密库处理。
 
 
 
