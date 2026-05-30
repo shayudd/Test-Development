@@ -2890,6 +2890,95 @@ DELETE FROM 表名;
 
 
 
+# 事务与锁基础
+
+## 事务 Transaction
+
+事务是数据库中**一组逻辑相关的操作**，这些操作要么全部成功执行，要么全部不执行。
+
+可以把事务理解成一个整体任务，例如银行转账：
+
+1. A账户扣款100元
+2. B账户加款100元
+
+这两个操作必须同时成功，否则会造成数据错误。
+
+------
+
+事务四大特性
+
+1、Atomicity（原子性）
+
+事务是不可分割的最小工作单元。要么全部成功，要么全部失败。
+
+2、Consistency（一致性）
+
+事务执行前后，数据库必须保持一致状态。
+
+3、Isolation（隔离性）
+
+多个事务并发执行时，互不干扰。
+
+4、Durability（持久性）
+
+事务一旦提交，数据永久保存。
+
+------
+
+开启事务
+
+```sql
+START TRANSACTION;
+```
+
+提交事务
+
+```sql
+COMMIT;
+```
+
+回滚事务
+
+```sql
+ROLLBACK;
+```
+
+示例，转账100元：
+
+```sql
+START TRANSACTION;
+
+UPDATE account
+SET balance = balance - 100
+WHERE id = 1;
+
+UPDATE account
+SET balance = balance + 100
+WHERE id = 2;
+
+COMMIT;
+```
+
+```sql
+START TRANSACTION;
+
+UPDATE account
+SET balance = balance - 100
+WHERE id = 1;
+
+-- 发现异常
+
+ROLLBACK;
+```
+
+
+
+
+
+
+
+
+
 
 
 # ⭐索引
