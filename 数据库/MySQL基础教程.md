@@ -1932,6 +1932,722 @@ SELECT DECODE(ENCODE('hello', 'key123'), 'key123');
 
 # ⭐⭐⭐查询数据
 
+## SELECT 基本语法
+
+指定要查询的字段
+
+```sql
+SELECT 字段名
+FROM 表名
+[WHERE 条件];
+```
+
+查询学生姓名和年龄：
+
+```sql
+SELECT name, age
+FROM students;
+```
+
+可使用 `*` 表示查询表中的所有字段
+
+```sql
+SELECT * FROM 表名;
+```
+
+使用 `WHERE` 设置条件
+
+```sql
+SELECT *
+FROM students
+WHERE age = 18;
+
+SELECT name
+FROM students
+WHERE city = 'Shanghai';
+```
+
+
+
+## IN、BETWEEN AND、LIKE
+
+`IN` 用于匹配多个值，相当于多个 `OR`。
+
+```sql
+SELECT 字段名
+FROM 表名
+WHERE 字段名 IN (值1, 值2, ...);
+```
+
+查询来自北京和上海的学生：
+
+```sql
+SELECT *
+FROM students
+WHERE city IN ('Beijing', 'Shanghai');
+```
+
+------
+
+`BETWEEN AND` 用于查询某个范围内的数据（包含**边界值**）。
+
+```sql
+SELECT 字段名
+FROM 表名
+WHERE 字段名 BETWEEN 值1 AND 值2;
+```
+
+查询年龄在18到20之间的学生：
+
+```sql
+SELECT *
+FROM students
+WHERE age BETWEEN 18 AND 20;
+```
+
+------
+
+`LIKE`关键字用于**模糊匹配**字符串，结合通配符使用
+
+| 通配符 | 含义         |
+| ------ | ------------ |
+| `%`    | 任意多个字符 |
+| `_`    | 任意一个字符 |
+
+查询名字以 T 开头的学生
+
+```sql
+SELECT *
+FROM students
+WHERE name LIKE 'T%';
+```
+
+查询名字包含 a 的学生
+
+```sql
+SELECT *
+FROM students
+WHERE name LIKE '%a%';
+```
+
+查询名字长度为4个字符的学生
+
+```sql
+SELECT *
+FROM students
+WHERE name LIKE '____';
+```
+
+
+
+## ORDER BY
+
+在 MySQL 中，可以使用 `ORDER BY` 对查询结果进行排序。
+
+```sql
+SELECT 字段名
+FROM 表名
+ORDER BY 字段名;
+```
+
+默认升序
+
+```sql
+SELECT *
+FROM students
+ORDER BY age ASC;        # ASC 表示升序，可省略
+```
+
+```sql
+SELECT *
+FROM students
+ORDER BY score DESC;
+```
+
+先按成绩降序，再按年龄升序（成绩相同的）
+
+```sql
+SELECT *
+FROM students
+ORDER BY score DESC, age ASC;
+```
+
+通常配合条件查询
+
+```sql
+SELECT *
+FROM students
+WHERE age > 18
+ORDER BY score DESC;
+```
+
+
+
+## LIMIT
+
+在 MySQL 中，可以使用 `LIMIT` 来限制查询结果返回的行数，常用于分页、取前几条数据等场景。
+
+```sql
+SELECT 字段名
+FROM 表名
+LIMIT 数量;
+```
+
+只查询前 3 条记录
+
+```sql
+SELECT *
+FROM students
+LIMIT 3;
+```
+
+查询成绩最高的 3 名学生
+
+```sql
+SELECT *
+FROM students
+WHERE score > 75
+ORDER BY score DESC
+LIMIT 3;
+```
+
+------
+
+LIMIT 分页查询
+
+```sql
+SELECT *
+FROM 表名
+LIMIT 起始位置, 数量;
+```
+
+起始位置（从 0 开始），返回多少条
+
+第1页（前3条）
+
+```sql
+SELECT *
+FROM students
+LIMIT 0, 3;
+```
+
+第2页（第4~6条）
+
+```sql
+SELECT *
+FROM students
+LIMIT 3, 3;
+```
+
+
+
+## 统计函数
+
+`COUNT()` 用于统计记录数量
+
+```sql
+SELECT COUNT(*)
+FROM students;
+```
+
+统计某字段非空数量
+
+只统计 score 不为 NULL 的记录：
+
+```sql
+SELECT COUNT(score)
+FROM students;
+```
+
+------
+
+`SUM()` 用于求和
+
+```sql
+SELECT SUM(score)
+FROM students;
+```
+
+```sql
+SELECT SUM(score)
+FROM students
+WHERE age >= 19;
+```
+
+------
+
+`AVG()` 用于计算平均值
+
+```sql
+SELECT AVG(price) AS avg_price
+FROM product;
+```
+
+------
+
+`MAX()` 用于获取最大值，`MIN()` 用于获取最小值
+
+```sql
+SELECT MAX(price) AS max_price
+FROM product;
+
+SELECT MIN(price) AS min_price
+FROM product;
+```
+
+
+
+## GROUP BY 分组查询
+
+`GROUP BY` 用于按某个字段进行分组，再对分组进行统计
+
+```sql
+SELECT 字段名, 聚合函数(字段名)
+FROM 表名
+GROUP BY 字段名;
+```
+
+例，统计每个部门的人数：
+
+```sql
+SELECT dept, COUNT(*) AS total
+FROM employee
+GROUP BY dept;
+```
+
+结果：
+
+| dept   | total |
+| ------ | ----- |
+| 技术部 | 2     |
+| 市场部 | 2     |
+| 财务部 | 1     |
+
+统计每个部门工资总和：
+
+```sql
+SELECT dept, SUM(salary) AS total_salary
+FROM salary
+GROUP BY dept;
+```
+
+------
+
+多字段`GROUP BY`
+
+先按部门分组，再按性别分组
+
+```sql
+SELECT dept, gender, COUNT(*)
+FROM employee
+GROUP BY dept, gender;
+```
+
+结果：
+
+| dept   | gender | COUNT(*) |
+| ------ | ------ | -------- |
+| 技术部 | 男     | 2        |
+| 技术部 | 女     | 1        |
+| 市场部 | 男     | 1        |
+| 市场部 | 女     | 2        |
+| 财务部 | 男     | 1        |
+
+
+
+
+
+
+
+## HAVING 分组后过滤
+
+`HAVING` 用于对`GROUP BY`分组后的结果进行过滤。
+
+注意：
+
+- `WHERE`：分组前过滤
+- `HAVING`：分组后过滤
+
+```sql
+SELECT 字段名, 聚合函数(字段名)
+FROM 表名
+GROUP BY 字段名
+HAVING 条件;
+```
+
+例，查询人数大于 1 的部门：
+
+```sql
+SELECT dept, COUNT(*) AS total
+FROM employee
+GROUP BY dept
+HAVING COUNT(*) > 1;
+```
+
+结果：
+
+| dept   | total |
+| ------ | ----- |
+| 技术部 | 2     |
+| 市场部 | 2     |
+
+例，查询工资大于 8000 的员工中，每个部门的平均工资，并且平均工资大于 10000：
+
+```sql
+SELECT dept, AVG(salary) AS avg_salary
+FROM salary
+WHERE salary > 8000
+GROUP BY dept
+HAVING AVG(salary) > 10000;
+```
+
+
+
+## JOIN 连接查询
+
+在 MySQL 中，`JOIN` 用来把多个表的数据按照某种关联条件组合起来。
+
+最常见的场景：
+
+- 用户表 + 订单表
+- 学生表 + 成绩表
+- 商品表 + 分类表
+
+JOIN 的核心思想：
+
+> 用两个表中“有关联关系的字段”进行匹配。
+
+
+
+用户表 users
+
+| id   | name | city_id |
+| ---- | ---- | ------- |
+| 1    | 张三 | 1       |
+| 2    | 李四 | 2       |
+| 3    | 王五 | 3       |
+| 4    | 赵六 | NULL    |
+
+城市表 cities
+
+| id   | city_name |
+| ---- | --------- |
+| 1    | 北京      |
+| 2    | 上海      |
+| 4    | 深圳      |
+
+users.city_id 对应 cities.id
+
+
+
+### INNER JOIN
+
+只返回两张表中能够成功匹配的数据。
+
+```sql
+SELECT 字段
+FROM 表1
+INNER JOIN 表2   # 可简写为 JOIN
+ON 关联条件;
+```
+
+这里 ON 用于指定表之间如何关联
+
+示例：
+
+```sql
+SELECT
+    users.name,
+    cities.city_name
+FROM users
+INNER JOIN cities
+ON users.city_id = cities.id;
+```
+
+结果：
+
+| name | city_name |
+| ---- | --------- |
+| 张三 | 北京      |
+| 李四 | 上海      |
+
+------
+
+可以连续 JOIN 多张表
+
+```sql
+SELECT
+    users.name,
+    products.product_name
+FROM orders
+JOIN users
+ON orders.user_id = users.id
+JOIN products
+ON orders.product_id = products.id;
+```
+
+一般 FROM 什么就 ON 什么，清晰
+
+------
+
+复合条件 JOIN
+
+```sql
+SELECT
+    orders.order_id,
+    orders.amount,
+    vip_users.vip_level
+FROM orders
+JOIN vip_users
+ON orders.user_id = vip_users.user_id
+AND orders.shop_id = vip_users.shop_id;
+```
+
+
+
+
+
+
+
+### LEFT JOIN
+
+返回左边表的所有数据，即使右边表没有匹配，也会保留（使用 NULL 填充）。
+
+```sql
+SELECT 字段
+FROM 表1
+LEFT JOIN 表2
+ON 关联条件;
+```
+
+```sql
+SELECT
+    users.name,
+    cities.city_name
+FROM users
+LEFT JOIN cities
+ON users.city_id = cities.id;
+```
+
+结果：
+
+| name | city_name |
+| ---- | --------- |
+| 张三 | 北京      |
+| 李四 | 上海      |
+| 王五 | NULL      |
+| 赵六 | NULL      |
+
+users 表中的：
+
+- 张三
+- 李四
+- 王五
+- 赵六
+
+全部都会出现，id 没有匹配的使用 NULL 代替。
+
+
+
+
+
+
+
+
+
+### RIGHT JOIN
+
+返回右边表的所有数据，即使左边表没有匹配，也会保留（使用 NULL 填充）。
+
+```sql
+SELECT 字段
+FROM 表1
+RIGHT JOIN 表2
+ON 关联条件;
+```
+
+```sql
+SELECT
+    users.name,
+    cities.city_name
+FROM users
+RIGHT JOIN cities
+ON users.city_id = cities.id;
+```
+
+结果：
+
+| name | city_name |
+| ---- | --------- |
+| 张三 | 北京      |
+| 李四 | 上海      |
+| NULL | 深圳      |
+
+cities 表中的深圳，id=4，users 中没人引用，但 RIGHT JOIN 必须保留右边表全部数据，所以 users.name 用 NULL 填充。
+
+
+
+
+
+## 子查询
+
+在一个 SQL 语句内部，再嵌套一个 SELECT 查询
+
+```sql
+SELECT ...
+FROM ...
+WHERE 字段 IN (
+    SELECT ...
+)
+```
+
+示例，查询工资高于平均工资的员工
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > (
+    SELECT AVG(salary)
+    FROM employee
+);
+```
+
+先执行子查询 AVG
+
+------
+
+带 IN
+
+示例，查询技术部员工
+
+```sql
+SELECT *
+FROM employee
+WHERE dept_id IN (
+    SELECT dept_id
+    FROM department
+    WHERE dept_name = '技术部'
+);
+```
+
+------
+
+带 ANY 或 SOME（等价）
+
+只要满足子查询结果中的任意一个值即可
+
+```sql
+字段 比较运算符 ANY (子查询)
+```
+
+查询工资高于“技术部任意一个员工”的员工
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > ANY (
+    SELECT salary
+    FROM employee
+    WHERE dept_id = 1
+);
+```
+
+------
+
+带 ALL
+
+必须满足子查询中的所有值
+
+```sql
+字段 比较运算符 ALL (子查询)
+```
+
+查询工资高于“技术部所有员工”的员工
+
+```sql
+SELECT *
+FROM employee
+WHERE salary > ALL (
+    SELECT salary
+    FROM employee
+    WHERE dept_id = 1
+);
+```
+
+------
+
+带 EXISTS
+
+判断子查询是否有结果，有则 TRUE，无则 FALSE
+
+```sql
+SELECT ...
+WHERE EXISTS (
+    子查询
+);
+```
+
+查询存在员工的部门
+
+```sql
+SELECT *
+FROM department d
+WHERE EXISTS (
+    SELECT 1               # 返回一个常量值 1，但实际上这个值不会被使用。不关心返回什么字段值，只是检查记录是否存在
+    FROM employee e
+    WHERE e.dept_id = d.dept_id
+);
+```
+
+查询没有员工的部门
+
+```sql
+SELECT *
+FROM department d
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM employee e
+    WHERE e.dept_id = d.dept_id
+);
+```
+
+子查询也可以放在 FROM 中
+
+查询各部门平均工资
+
+```sql
+SELECT dept_avg.dept_id,
+       dept_avg.avg_salary
+FROM (
+    SELECT dept_id,
+           AVG(salary) AS avg_salary
+    FROM employee
+    GROUP BY dept_id
+) AS dept_avg;
+```
+
+
+
+## UNION 合并查询
+
+UNION 和 UNION ALL 用于合并多个 SELECT 查询结果
+
+UNION 将多个查询结果合并，并且**自动去重**，UNION ALL 不去重。
+
+注意：多个 SELECT 必须满足列数相同且数据类型兼容
+
+```sql
+SELECT column1, column2, ...
+FROM table1
+
+UNION / UNION ALL
+
+SELECT column1, column2, ...
+FROM table2;
+```
+
+
+
 
 
 
@@ -1940,7 +2656,235 @@ SELECT DECODE(ENCODE('hello', 'key123'), 'key123');
 
 # ⭐插入、更新与删除数据
 
+## INSERT
 
+插入所有字段
+
+```sql
+INSERT INTO 表名
+VALUES (值1, 值2, 值3, ...);
+```
+
+注意：
+
+- 值的顺序必须和表中字段顺序一致
+- 字段数量和值数量必须一致
+
+```sql
+CREATE TABLE student (
+    id INT,
+    name VARCHAR(20),
+    age INT,
+    gender VARCHAR(10)
+);
+```
+
+```sql
+INSERT INTO student
+VALUES (1, 'Tom', 20, '男');
+```
+
+------
+
+指定字段插入
+
+```sql
+INSERT INTO 表名 (字段1, 字段2, ...)
+VALUES (值1, 值2, ...);
+```
+
+特点：
+
+- 只给指定字段赋值
+- 未赋值字段会使用默认值
+- 更推荐这种写法，可读性更高
+
+```sql
+INSERT INTO student (name, age)
+VALUES ('Alice', 18);
+```
+
+------
+
+插入多条记录
+
+```sql
+INSERT INTO 表名
+VALUES
+(值1, 值2, ...),
+(值1, 值2, ...),
+(值1, 值2, ...);
+```
+
+```sql
+INSERT INTO student
+VALUES
+(2, 'Jack', 21, '男'),
+(3, 'Rose', 19, '女'),
+(4, 'Lucy', 22, '女');
+```
+
+------
+
+插入查询结果
+
+```sql
+INSERT INTO 表名1
+SELECT ...
+FROM 表名2
+WHERE 条件;
+```
+
+将年龄小于等于 20 的学生插入优秀学生表
+
+```sql
+CREATE TABLE good_student (
+    id INT,
+    name VARCHAR(20),
+    age INT,
+    gender VARCHAR(10)
+);
+```
+
+```sql
+INSERT INTO good_student
+SELECT *
+FROM student
+WHERE age <= 20;
+```
+
+指定字段 + 查询结果插入
+
+```sql
+INSERT INTO 表名 (字段1, 字段2)
+SELECT 字段1, 字段2
+FROM 其他表;
+```
+
+
+
+## UPDATE
+
+更新单个字段
+
+```sql
+UPDATE 表名
+SET 字段名 = 新值
+WHERE 条件;
+```
+
+说明：
+
+- `SET`：指定要修改的字段
+- `WHERE`：指定修改哪些记录
+- 如果没有 `WHERE`，会修改整张表、
+
+------
+
+更新多个字段
+
+```sql
+UPDATE 表名
+SET 字段1 = 值1,
+    字段2 = 值2,
+    ...
+WHERE 条件;
+```
+
+```sql
+UPDATE student
+SET age = 19,
+    gender = '女'
+WHERE name = 'Alice';
+```
+
+------
+
+更新所有记录（修改整张表）
+
+```sql
+UPDATE 表名
+SET 字段 = 值;
+```
+
+把所有学生年龄加 1：
+
+```sql
+UPDATE student
+SET age = age + 1;       # 可使用表达式
+```
+
+------
+
+根据查询结果更新
+
+```sql
+UPDATE 表1
+SET 字段 = (
+    SELECT ...
+)
+WHERE 条件;
+```
+
+```sql
+UPDATE class_info
+SET avg_age = (
+    SELECT AVG(age)
+    FROM student
+);
+```
+
+------
+
+关联表更新
+
+```sql
+UPDATE 表1
+JOIN 表2
+ON 关联条件
+SET 表1.字段 = 值
+WHERE 条件;
+```
+
+```sql
+UPDATE student s
+JOIN class c
+ON s.class_id = c.class_id
+SET s.name = CONCAT(s.name, '_A')
+WHERE c.class_name = '一班';
+```
+
+
+
+## DELETE
+
+删除指定数据
+
+```sql
+DELETE FROM 表名
+WHERE 条件;
+```
+
+```sql
+DELETE FROM student
+WHERE id = 1;
+
+DELETE FROM student
+WHERE gender = '男' AND age < 22;
+```
+
+------
+
+删除所有记录
+
+```sql
+DELETE FROM 表名;
+```
+
+说明：
+
+- 删除表中的所有记录
+- 表结构仍然保留
 
 
 
@@ -1949,6 +2893,12 @@ SELECT DECODE(ENCODE('hello', 'key123'), 'key123');
 
 
 # ⭐索引
+
+
+
+
+
+
 
 
 
