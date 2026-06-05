@@ -1969,6 +1969,105 @@ WHERE city = 'Shanghai';
 
 
 
+## 别名
+
+别名用于给字段、表达式或表临时起一个更容易理解的名字，只在当前 SQL 语句中生效，不会修改真实的字段名或表名。
+
+常用关键字是 `AS`，也可以省略。
+
+### 字段别名
+
+字段别名常用于让查询结果更清晰。
+
+```sql
+SELECT 字段名 AS 别名
+FROM 表名;
+```
+
+查询学生姓名和年龄，并给字段起中文别名：
+
+```sql
+SELECT name AS 姓名, age AS 年龄
+FROM students;
+```
+
+`AS` 可以省略：
+
+```sql
+SELECT name 姓名, age 年龄
+FROM students;
+```
+
+如果别名中有空格或特殊字符，可以使用反引号：
+
+```sql
+SELECT name AS `student name`
+FROM students;
+```
+
+
+
+### 表达式别名
+
+表达式别名常用于计算字段。
+
+```sql
+SELECT product_name,
+       price,
+       quantity,
+       price * quantity AS total_amount
+FROM order_item;
+```
+
+这里 `total_amount` 不是表中真实存在的字段，而是查询时临时计算出来的结果名。
+
+聚合函数也经常使用别名：
+
+```sql
+SELECT dept, COUNT(*) AS total
+FROM employees
+GROUP BY dept;
+```
+
+
+
+### 表别名
+
+表别名常用于多表查询，可以让 SQL 更简洁。
+
+```sql
+SELECT s.name, c.class_name
+FROM students AS s
+JOIN classes AS c
+ON s.class_id = c.id;
+```
+
+说明：
+
+- `students AS s`：给 `students` 表起别名 `s`
+- `classes AS c`：给 `classes` 表起别名 `c`
+- 后面可以用 `s.name`、`c.class_name` 引用字段
+
+表别名也可以省略 `AS`：
+
+```sql
+SELECT s.name, c.class_name
+FROM students s
+JOIN classes c
+ON s.class_id = c.id;
+```
+
+注意：一旦给表起了别名，在当前 SQL 中通常就要使用别名引用字段，不要再混用原表名。
+
+```sql
+SELECT students.name
+FROM students AS s;
+```
+
+上面这种写法容易报错，因为表已经被临时命名为 `s`。
+
+
+
 ## IN、BETWEEN AND、LIKE
 
 `IN` 用于匹配多个值，相当于多个 `OR`。
@@ -2983,6 +3082,600 @@ ROLLBACK;
 
 # ⭐索引
 
+## 索引简介
+
+索引（Index）是帮助 MySQL 快速定位数据的一种数据结构，可以理解成一本书的目录。
+
+没有索引时，MySQL 可能需要从第一行一直扫描到最后一行；有合适索引时，可以先通过索引找到目标记录的位置，再读取数据。
+
+示例，假设 `users` 表有 100 万条数据：
+
+```sql
+SELECT *
+FROM users
+WHERE username = 'zhangsan';
+```
+
+如果 `username` 没有索引，可能会全表扫描。
+
+如果给 `username` 建索引：
+
+```sql
+CREATE INDEX idx_users_username
+ON users(username);
+```
+
+再按 `username` 查询时，MySQL 通常可以通过索引更快找到记录。
+
+------
+
+索引的优点：
+
+- 提高查询速度
+- 提高排序、分组、连接查询的效率
+- 唯一索引可以保证字段值不重复
+
+索引的缺点：
+
+- 索引需要占用额外存储空间
+- 插入、更新、删除数据时，索引也要维护，写入速度可能变慢
+- 索引太多会增加优化器选择成本，也会让表结构更难维护
+
+所以索引不是越多越好，而是要给**经常用于查询条件、排序、分组、连接**的字段建立合适索引。
+
+
+
+## 索引的分类
+
+### 普通索引
+
+普通索引只用于提高查询速度，不要求字段值唯一。
+
+```sql
+CREATE INDEX idx_users_age
+ON users(age);
+```
+
+适合查询：
+
+```sql
+SELECT *
+FROM users
+WHERE age = 20;
+```
+
+
+
+### 唯一索引
+
+唯一索引要求索引列的值不能重复，但可以有 `NULL` 值。
+
+```sql
+CREATE UNIQUE INDEX idx_users_email
+ON users(email);
+```
+
+适合邮箱、手机号、身份证号等不能重复的字段。
+
+```sql
+INSERT INTO users(username, password, email)
+VALUES ('lisi', '123456', 'lisi@example.com');
+```
+
+如果再次插入相同邮箱，就会报错。
+
+
+
+### 主键索引
+
+主键索引是一种特殊的唯一索引，要求字段值唯一且不能为 `NULL`。一张表只能有一个主键。
+
+```sql
+CREATE TABLE students (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    age INT
+);
+```
+
+按主键查询通常非常快：
+
+```sql
+SELECT *
+FROM students
+WHERE id = 10;
+```
+
+
+
+### 联合索引
+
+联合索引是给多个字段一起建立索引。
+
+```sql
+CREATE INDEX idx_orders_user_status_time
+ON orders(user_id, status, created_at);
+```
+
+适合这种查询：
+
+```sql
+SELECT *
+FROM orders
+WHERE user_id = 1
+  AND status = 'PAID'
+ORDER BY created_at DESC;
+```
+
+联合索引要注意**最左前缀原则**。
+
+例如索引是：
+
+```sql
+CREATE INDEX idx_user_status_time
+ON orders(user_id, status, created_at);
+```
+
+可以较好使用索引的写法：
+
+```sql
+WHERE user_id = 1;
+
+WHERE user_id = 1 AND status = 'PAID';
+
+WHERE user_id = 1 AND status = 'PAID' AND created_at >= '2026-01-01';
+```
+
+不容易完整使用该联合索引的写法：
+
+```sql
+WHERE status = 'PAID';
+
+WHERE created_at >= '2026-01-01';
+```
+
+因为跳过了联合索引最左边的 `user_id`。
+
+
+
+### 全文索引
+
+全文索引用于文本内容搜索，适合文章标题、正文、商品描述等长文本字段。
+
+```sql
+CREATE TABLE articles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(100),
+    content TEXT,
+    FULLTEXT INDEX ft_articles_content(content)
+);
+```
+
+查询示例：
+
+```sql
+SELECT *
+FROM articles
+WHERE MATCH(content) AGAINST('MySQL 索引');
+```
+
+普通的 `LIKE '%关键词%'` 往往很难使用 B-Tree 索引，而全文索引更适合做关键词检索。
+
+
+
+### 前缀索引
+
+如果字段很长，例如 `VARCHAR(255)`、`TEXT`，可以只给前面一部分字符建立索引，减少索引空间。
+
+```sql
+CREATE INDEX idx_articles_title_prefix
+ON articles(title(20));
+```
+
+含义：只使用 `title` 前 20 个字符建立索引。
+
+适合字段前缀区分度较高的场景，例如 URL、标题、编码等。
+
+
+
+### 降序索引
+
+降序索引适合经常按某个字段倒序排序的查询。
+
+```sql
+CREATE INDEX idx_orders_created_at_desc
+ON orders(created_at DESC);
+```
+
+查询示例：
+
+```sql
+SELECT *
+FROM orders
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+如果查询经常取“最新的 10 条订单”，降序索引可以帮助 MySQL 更快完成排序和限制返回。
+
+
+
+## 创建索引
+
+### 创建表时创建索引
+
+```sql
+CREATE TABLE products (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_name VARCHAR(100) NOT NULL,
+    category_id INT NOT NULL,
+    price DECIMAL(10, 2),
+    stock INT DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE INDEX idx_products_name(product_name),
+    INDEX idx_products_category(category_id),
+    INDEX idx_products_price_created(price, created_at)
+);
+```
+
+说明：
+
+- `PRIMARY KEY`：主键索引
+- `UNIQUE INDEX`：唯一索引，商品名不能重复
+- `INDEX`：普通索引
+- `(price, created_at)`：联合索引
+
+
+
+### 在已有表上创建索引
+
+方式一，使用 `CREATE INDEX`：
+
+```sql
+CREATE INDEX idx_users_city
+ON users(city);
+```
+
+方式二，使用 `ALTER TABLE`：
+
+```sql
+ALTER TABLE users
+ADD INDEX idx_users_city_age(city, age);
+```
+
+创建唯一索引：
+
+```sql
+ALTER TABLE users
+ADD UNIQUE INDEX idx_users_phone(phone);
+```
+
+创建前缀索引：
+
+```sql
+ALTER TABLE users
+ADD INDEX idx_users_email_prefix(email(10));
+```
+
+
+
+## 查看索引
+
+查看某张表已有索引：
+
+```sql
+SHOW INDEX FROM users;
+```
+
+也可以使用：
+
+```sql
+SHOW KEYS FROM users;
+```
+
+常见字段说明：
+
+- `Key_name`：索引名称
+- `Column_name`：索引包含的字段
+- `Non_unique`：是否允许重复，`0` 表示唯一，`1` 表示可以重复
+- `Seq_in_index`：字段在联合索引中的顺序
+- `Cardinality`：索引区分度估计值，越大通常说明区分度越高
+
+
+
+## 删除索引
+
+删除普通索引或唯一索引：
+
+```sql
+DROP INDEX idx_users_city
+ON users;
+```
+
+也可以使用：
+
+```sql
+ALTER TABLE users
+DROP INDEX idx_users_city_age;
+```
+
+删除主键索引：
+
+```sql
+ALTER TABLE students
+DROP PRIMARY KEY;
+```
+
+注意：如果主键字段是 `AUTO_INCREMENT`，一般不能直接删除主键，需要先处理自增属性或重新设计主键。
+
+
+
+## 索引的设计原则
+
+### 给高频查询字段建索引
+
+经常出现在 `WHERE`、`JOIN ON`、`ORDER BY`、`GROUP BY` 中的字段适合建立索引。
+
+```sql
+SELECT *
+FROM orders
+WHERE user_id = 1001
+ORDER BY created_at DESC;
+```
+
+可以建立联合索引：
+
+```sql
+CREATE INDEX idx_orders_user_time
+ON orders(user_id, created_at DESC);
+```
+
+
+
+### 给区分度高的字段建索引
+
+区分度高，表示字段值重复少。
+
+适合建索引：
+
+- 用户名
+- 邮箱
+- 手机号
+- 订单号
+
+不太适合单独建索引：
+
+- 性别
+- 是否删除
+- 是否启用
+
+例如 `gender` 只有“男、女”两个值，单独建索引效果通常不好：
+
+```sql
+CREATE INDEX idx_users_gender
+ON users(gender);
+```
+
+如果业务查询经常同时按城市、性别、年龄筛选，可以考虑联合索引：
+
+```sql
+CREATE INDEX idx_users_city_gender_age
+ON users(city, gender, age);
+```
+
+
+
+### 联合索引字段顺序要结合查询条件
+
+联合索引不是简单地把字段堆在一起，要看实际 SQL。
+
+例如常见查询：
+
+```sql
+SELECT *
+FROM orders
+WHERE user_id = 1
+  AND status = 'PAID'
+ORDER BY created_at DESC;
+```
+
+推荐：
+
+```sql
+CREATE INDEX idx_orders_user_status_time
+ON orders(user_id, status, created_at DESC);
+```
+
+原因：
+
+- `user_id` 用于筛选某个用户
+- `status` 继续缩小范围
+- `created_at DESC` 配合排序
+
+
+
+### 不要给频繁更新的字段随意建索引
+
+索引会提高查询速度，但会增加写入成本。
+
+如果某个字段频繁变化，例如库存、余额、登录次数：
+
+```sql
+UPDATE products
+SET stock = stock - 1
+WHERE id = 10;
+```
+
+如果 `stock` 上有索引，每次修改库存时都要维护索引。只有当它确实经常作为查询条件时，才考虑建立索引。
+
+
+
+### 控制索引数量
+
+一张表不要无脑给每个字段都建索引。
+
+例如下面这样通常没有必要：
+
+```sql
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_phone ON users(phone);
+CREATE INDEX idx_users_age ON users(age);
+CREATE INDEX idx_users_gender ON users(gender);
+CREATE INDEX idx_users_status ON users(status);
+```
+
+应该根据真实查询决定索引，而不是根据字段数量决定索引。
+
+
+
+## 索引失效的常见情况
+
+### 对索引列使用函数
+
+```sql
+SELECT *
+FROM users
+WHERE YEAR(created_at) = 2026;
+```
+
+如果 `created_at` 有索引，上面写法也可能无法很好使用索引，因为对字段做了函数计算。
+
+可以改成范围查询：
+
+```sql
+SELECT *
+FROM users
+WHERE created_at >= '2026-01-01'
+  AND created_at < '2027-01-01';
+```
+
+
+
+### LIKE 以通配符开头
+
+```sql
+SELECT *
+FROM users
+WHERE username LIKE '%san';
+```
+
+这种写法前面是不确定的，普通 B-Tree 索引通常很难发挥作用。
+
+可以使用右侧模糊匹配：
+
+```sql
+SELECT *
+FROM users
+WHERE username LIKE 'zhang%';
+```
+
+
+
+### 隐式类型转换
+
+如果 `phone` 是字符串类型：
+
+```sql
+phone VARCHAR(20)
+```
+
+查询时不要写成数字：
+
+```sql
+SELECT *
+FROM users
+WHERE phone = 13800138000;
+```
+
+推荐写成字符串：
+
+```sql
+SELECT *
+FROM users
+WHERE phone = '13800138000';
+```
+
+字段类型和查询值类型保持一致，更利于索引使用。
+
+
+
+### OR 条件使用不当
+
+```sql
+SELECT *
+FROM users
+WHERE username = 'zhangsan'
+   OR age = 20;
+```
+
+如果 `username` 有索引，但 `age` 没有索引，优化器可能放弃使用索引。
+
+可以根据实际情况给两个字段都建立索引，或者改写 SQL：
+
+```sql
+SELECT *
+FROM users
+WHERE username = 'zhangsan'
+UNION
+SELECT *
+FROM users
+WHERE age = 20;
+```
+
+
+
+## 使用 EXPLAIN 分析索引
+
+`EXPLAIN` 可以查看 SQL 的执行计划，判断有没有使用索引。
+
+```sql
+EXPLAIN
+SELECT *
+FROM users
+WHERE username = 'zhangsan';
+```
+
+需要重点关注：
+
+- `type`：访问类型，常见有 `ALL`、`index`、`range`、`ref`、`const`
+- `possible_keys`：可能使用的索引
+- `key`：实际使用的索引
+- `rows`：预计扫描行数
+- `Extra`：额外信息，例如 `Using index`、`Using where`、`Using filesort`
+
+示例：
+
+```sql
+CREATE INDEX idx_users_username
+ON users(username);
+
+EXPLAIN
+SELECT *
+FROM users
+WHERE username = 'zhangsan';
+```
+
+如果 `key` 显示 `idx_users_username`，说明实际使用了这个索引。
+
+如果 `type` 是 `ALL`，通常表示全表扫描，需要检查查询条件和索引设计。
+
+
+
+## 小结
+
+1、索引可以提高查询速度，但会占用空间并降低部分写入性能。
+
+2、常见索引包括普通索引、唯一索引、主键索引、联合索引、全文索引、前缀索引、降序索引。
+
+3、联合索引要注意最左前缀原则。
+
+4、经常用于查询、排序、分组、连接的字段适合建立索引。
+
+5、区分度太低、频繁更新、很少查询的字段不适合随意建立索引。
+
+6、使用 `EXPLAIN` 可以判断 SQL 是否真的用到了索引。
+
 
 
 
@@ -3046,6 +3739,573 @@ ROLLBACK;
 
 
 # MySQL日志
+
+## 日志简介
+
+MySQL 日志用于记录数据库运行过程中的重要信息，可以帮助我们排查错误、分析性能、审计 SQL、恢复数据。
+
+常见日志类型：
+
+| 日志类型 | 作用 |
+| -------- | ---- |
+| 错误日志 | 记录 MySQL 启动、停止、运行错误等信息 |
+| 二进制日志 | 记录会修改数据的 SQL，用于数据恢复和主从复制 |
+| 通用查询日志 | 记录客户端连接和执行过的 SQL |
+| 慢查询日志 | 记录执行时间超过阈值的 SQL，用于性能优化 |
+| 中继日志 | 主从复制中，从库接收主库二进制日志后保存的日志 |
+| 重做日志 | InnoDB 用于崩溃恢复，保证事务持久性 |
+| 回滚日志 | InnoDB 用于事务回滚和 MVCC |
+
+学习阶段重点掌握：**错误日志、二进制日志、通用查询日志、慢查询日志**。
+
+
+
+## 二进制日志
+
+二进制日志（Binary Log，简称 binlog）记录会导致数据发生变化的操作，例如 `INSERT`、`UPDATE`、`DELETE`、`CREATE TABLE`、`DROP TABLE` 等。
+
+主要用途：
+
+- 数据恢复
+- 主从复制
+- 审计数据变更
+
+注意：二进制日志不记录普通的 `SELECT` 查询。
+
+
+
+### 查看二进制日志是否开启
+
+```sql
+SHOW VARIABLES LIKE 'log_bin';
+```
+
+如果结果为 `ON`，表示二进制日志已开启。
+
+查看二进制日志文件名：
+
+```sql
+SHOW BINARY LOGS;
+```
+
+查看当前正在使用的二进制日志：
+
+```sql
+SHOW MASTER STATUS;
+```
+
+在较新的 MySQL 版本中，也可以使用：
+
+```sql
+SHOW BINARY LOG STATUS;
+```
+
+
+
+### 启动二进制日志
+
+可以在 MySQL 配置文件中设置，例如 Linux 常见配置文件：
+
+```ini
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+binlog_format=ROW
+```
+
+说明：
+
+- `server-id`：服务器编号，主从复制时必须唯一
+- `log-bin`：开启二进制日志，并设置日志文件名前缀
+- `binlog_format`：二进制日志格式
+
+修改配置后需要重启 MySQL：
+
+```shell
+sudo systemctl restart mysql
+```
+
+
+
+### 二进制日志格式
+
+常见格式：
+
+| 格式 | 说明 |
+| ---- | ---- |
+| STATEMENT | 记录 SQL 语句 |
+| ROW | 记录每一行数据的变化 |
+| MIXED | 混合模式，由 MySQL 自动选择 |
+
+查看当前格式：
+
+```sql
+SHOW VARIABLES LIKE 'binlog_format';
+```
+
+修改当前会话格式：
+
+```sql
+SET SESSION binlog_format = 'ROW';
+```
+
+修改全局格式：
+
+```sql
+SET GLOBAL binlog_format = 'ROW';
+```
+
+生产环境通常更推荐 `ROW`，因为它记录的是行变化，数据恢复和复制更可靠。
+
+
+
+### 查看二进制日志内容
+
+可以用 `mysqlbinlog` 工具查看：
+
+```shell
+mysqlbinlog mysql-bin.000001
+```
+
+如果日志中包含中文，建议指定字符集：
+
+```shell
+mysqlbinlog --default-character-set=utf8mb4 mysql-bin.000001
+```
+
+也可以查看某个时间范围：
+
+```shell
+mysqlbinlog \
+  --start-datetime="2026-06-01 10:00:00" \
+  --stop-datetime="2026-06-01 11:00:00" \
+  mysql-bin.000001
+```
+
+
+
+### 使用二进制日志恢复数据
+
+假设误删了数据：
+
+```sql
+DELETE FROM users WHERE id = 10;
+```
+
+如果有备份文件 `backup.sql` 和二进制日志，可以先恢复备份：
+
+```shell
+mysql -u root -p test < backup.sql
+```
+
+再用 `mysqlbinlog` 恢复备份之后到误操作之前的日志：
+
+```shell
+mysqlbinlog \
+  --stop-datetime="2026-06-01 10:30:00" \
+  mysql-bin.000001 | mysql -u root -p test
+```
+
+如果知道准确位置，也可以按 position 恢复：
+
+```shell
+mysqlbinlog \
+  --start-position=120 \
+  --stop-position=980 \
+  mysql-bin.000001 | mysql -u root -p test
+```
+
+
+
+### 暂时停止记录二进制日志
+
+当前会话可以临时关闭二进制日志记录：
+
+```sql
+SET sql_log_bin = 0;
+```
+
+重新开启：
+
+```sql
+SET sql_log_bin = 1;
+```
+
+注意：
+
+- 只影响当前连接
+- 需要相应权限
+- 不建议在生产环境随意关闭，否则可能影响恢复和复制
+
+
+
+### 删除二进制日志
+
+删除指定文件之前的日志：
+
+```sql
+PURGE BINARY LOGS TO 'mysql-bin.000010';
+```
+
+删除指定时间之前的日志：
+
+```sql
+PURGE BINARY LOGS BEFORE '2026-06-01 00:00:00';
+```
+
+也可以设置自动过期时间：
+
+```sql
+SET GLOBAL binlog_expire_logs_seconds = 604800;
+```
+
+`604800` 秒等于 7 天。
+
+注意：不要直接手动删除 binlog 文件，否则可能造成 MySQL 元信息和实际文件不一致。
+
+
+
+## 错误日志
+
+错误日志（Error Log）记录 MySQL 服务器启动、停止、运行过程中的错误、警告和诊断信息。
+
+常见用途：
+
+- MySQL 无法启动时查看原因
+- 排查连接异常、权限异常、崩溃信息
+- 查看 InnoDB 恢复信息
+
+
+
+### 查看错误日志位置
+
+```sql
+SHOW VARIABLES LIKE 'log_error';
+```
+
+也可以查看错误日志详细程度：
+
+```sql
+SHOW VARIABLES LIKE 'log_error_verbosity';
+```
+
+常见取值：
+
+- `1`：只记录错误
+- `2`：记录错误和警告
+- `3`：记录错误、警告和普通提示信息
+
+
+
+### 设置错误日志
+
+可以在配置文件中设置：
+
+```ini
+[mysqld]
+log_error=/var/log/mysql/error.log
+log_error_verbosity=2
+```
+
+修改后重启 MySQL：
+
+```shell
+sudo systemctl restart mysql
+```
+
+
+
+### 查看错误日志
+
+Linux 中可以直接查看文件：
+
+```shell
+sudo tail -n 100 /var/log/mysql/error.log
+```
+
+持续查看最新日志：
+
+```shell
+sudo tail -f /var/log/mysql/error.log
+```
+
+如果 MySQL 启动失败，错误日志通常是第一优先级排查对象。
+
+
+
+## 通用查询日志
+
+通用查询日志（General Query Log）会记录客户端连接信息和执行的 SQL 语句。
+
+它记录非常详细，适合临时排查问题，但不建议长期开启，因为会产生大量日志并影响性能。
+
+
+
+### 查看通用查询日志状态
+
+```sql
+SHOW VARIABLES LIKE 'general_log';
+SHOW VARIABLES LIKE 'general_log_file';
+```
+
+
+
+### 开启和关闭通用查询日志
+
+开启：
+
+```sql
+SET GLOBAL general_log = 'ON';
+```
+
+关闭：
+
+```sql
+SET GLOBAL general_log = 'OFF';
+```
+
+设置日志文件位置：
+
+```sql
+SET GLOBAL general_log_file = '/var/log/mysql/general.log';
+```
+
+也可以写在配置文件中：
+
+```ini
+[mysqld]
+general_log=ON
+general_log_file=/var/log/mysql/general.log
+```
+
+
+
+### 查看通用查询日志示例
+
+执行查询：
+
+```sql
+SELECT * FROM users WHERE id = 1;
+```
+
+通用查询日志中会记录类似信息：
+
+```text
+Connect root@localhost on test
+Query   SELECT * FROM users WHERE id = 1
+Quit
+```
+
+适用场景：
+
+- 想知道应用到底发送了哪些 SQL
+- 排查连接是否频繁创建和断开
+- 临时审计某段时间的 SQL 行为
+
+
+
+## 慢查询日志
+
+慢查询日志（Slow Query Log）用于记录执行时间超过指定阈值的 SQL，是 SQL 性能优化中非常重要的工具。
+
+
+
+### 查看慢查询日志状态
+
+```sql
+SHOW VARIABLES LIKE 'slow_query_log';
+SHOW VARIABLES LIKE 'slow_query_log_file';
+SHOW VARIABLES LIKE 'long_query_time';
+```
+
+说明：
+
+- `slow_query_log`：是否开启慢查询日志
+- `slow_query_log_file`：慢查询日志文件位置
+- `long_query_time`：超过多少秒算慢查询
+
+
+
+### 开启慢查询日志
+
+临时开启：
+
+```sql
+SET GLOBAL slow_query_log = 'ON';
+```
+
+设置慢查询阈值，例如超过 2 秒就记录：
+
+```sql
+SET GLOBAL long_query_time = 2;
+```
+
+配置文件写法：
+
+```ini
+[mysqld]
+slow_query_log=ON
+slow_query_log_file=/var/log/mysql/slow.log
+long_query_time=2
+```
+
+修改配置文件后需要重启 MySQL。
+
+
+
+### 记录未使用索引的查询
+
+可以让 MySQL 记录没有使用索引的查询：
+
+```sql
+SET GLOBAL log_queries_not_using_indexes = 'ON';
+```
+
+配置文件写法：
+
+```ini
+[mysqld]
+log_queries_not_using_indexes=ON
+```
+
+注意：这个选项可能产生大量日志，适合排查阶段临时开启。
+
+
+
+### 慢查询示例
+
+假设 `users.name` 没有索引：
+
+```sql
+SELECT *
+FROM users
+WHERE name LIKE '%zhang%';
+```
+
+如果数据量很大，这条 SQL 可能被记录到慢查询日志中。
+
+优化思路：
+
+```sql
+EXPLAIN
+SELECT *
+FROM users
+WHERE name LIKE '%zhang%';
+```
+
+如果 `type` 是 `ALL`，说明可能发生全表扫描。
+
+如果业务允许前缀匹配，可以改成：
+
+```sql
+SELECT *
+FROM users
+WHERE name LIKE 'zhang%';
+```
+
+再考虑建立索引：
+
+```sql
+CREATE INDEX idx_users_name
+ON users(name);
+```
+
+
+
+### 使用 mysqldumpslow 分析慢查询日志
+
+`mysqldumpslow` 可以汇总慢查询日志，找出执行次数多、耗时长的 SQL。
+
+查看最慢的 10 条 SQL：
+
+```shell
+mysqldumpslow -s t -t 10 /var/log/mysql/slow.log
+```
+
+查看执行次数最多的 10 条 SQL：
+
+```shell
+mysqldumpslow -s c -t 10 /var/log/mysql/slow.log
+```
+
+常用参数：
+
+| 参数 | 含义 |
+| ---- | ---- |
+| `-s t` | 按总时间排序 |
+| `-s at` | 按平均时间排序 |
+| `-s c` | 按执行次数排序 |
+| `-t 10` | 显示前 10 条 |
+
+
+
+## 日志输出位置
+
+MySQL 日志可以输出到文件，也可以输出到表。
+
+查看输出方式：
+
+```sql
+SHOW VARIABLES LIKE 'log_output';
+```
+
+设置输出到文件：
+
+```sql
+SET GLOBAL log_output = 'FILE';
+```
+
+设置输出到表：
+
+```sql
+SET GLOBAL log_output = 'TABLE';
+```
+
+如果输出到表，通用查询日志和慢查询日志可以在 `mysql` 系统库中查看：
+
+```sql
+SELECT *
+FROM mysql.general_log
+LIMIT 10;
+
+SELECT *
+FROM mysql.slow_log
+LIMIT 10;
+```
+
+学习和排查时使用表查看比较方便，但生产环境一般更常输出到文件，方便归档和分析。
+
+
+
+## 日志维护建议
+
+1、错误日志建议长期保留，定期归档。
+
+2、二进制日志要结合备份策略设置保留时间。
+
+3、通用查询日志只在排查问题时临时开启。
+
+4、慢查询日志可以长期开启，但阈值要合理，避免日志过大。
+
+5、不要直接删除 MySQL 正在使用的日志文件。
+
+6、日志文件要监控磁盘空间，避免磁盘被写满导致数据库异常。
+
+7、分析慢查询时，要结合 `EXPLAIN`、索引设计和真实业务场景。
+
+
+
+## 小结
+
+1、错误日志用于排查 MySQL 运行问题。
+
+2、二进制日志用于数据恢复和主从复制。
+
+3、通用查询日志可以看到所有连接和 SQL，但不适合长期开启。
+
+4、慢查询日志用于发现性能较差的 SQL。
+
+5、日志不是只会“记录”，更重要的是配合备份、恢复、性能优化一起使用。
 
 
 
