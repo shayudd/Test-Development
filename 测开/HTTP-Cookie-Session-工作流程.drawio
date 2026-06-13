@@ -1,0 +1,171 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.0 Safari/537.36" version="29.0.3" pages="3">
+  <diagram id="http-flow" name="HTTP工作流程">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="h-title" value="HTTP 工作流程" style="text;html=1;strokeColor=none;fillColor=none;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="445" y="30" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="h-client" value="客户端&lt;br&gt;浏览器 / App / Postman" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="80" y="160" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h-dns" value="DNS 解析&lt;br&gt;域名 -&gt; IP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="330" y="110" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h-connect" value="建立连接&lt;br&gt;TCP / TLS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="330" y="230" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="h-server" value="Web 服务器&lt;br&gt;Nginx / 网关" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="580" y="160" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h-app" value="业务服务&lt;br&gt;Controller / Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="830" y="110" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="h-db" value="数据库 / 缓存&lt;br&gt;MySQL / Redis" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="850" y="250" width="130" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="h-req" value="HTTP Request&lt;br&gt;请求行 + 请求头 + 请求体" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeWidth=2;strokeColor=#1a1a1a;fontSize=13;" edge="1" parent="1" source="h-client" target="h-server">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="360" y="195" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h-dns-edge" value="先解析域名" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#9673a6;fontSize=12;" edge="1" parent="1" source="h-client" target="h-dns">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h-connect-edge" value="再建立连接" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#9673a6;fontSize=12;" edge="1" parent="1" source="h-client" target="h-connect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h-app-edge" value="转发接口请求" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=12;" edge="1" parent="1" source="h-server" target="h-app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h-db-edge" value="查询 / 写入数据" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=12;" edge="1" parent="1" source="h-app" target="h-db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="h-resp" value="HTTP Response&lt;br&gt;状态码 + 响应头 + 响应体" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;strokeColor=#b85450;fontSize=13;" edge="1" parent="1" source="h-server" target="h-client">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="665" y="400" />
+              <mxPoint x="165" y="400" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h-note" value="测试关注：请求方法、URL、参数、Headers、Body、状态码、响应体、耗时" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="250" y="500" width="670" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="cookie-flow" name="Cookie工作流程">
+    <mxGraphModel dx="962" dy="679" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="c-title" value="Cookie 工作流程" style="text;html=1;strokeColor=none;fillColor=none;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;" parent="1" vertex="1">
+          <mxGeometry x="445" y="30" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c-browser" value="浏览器 / Postman&lt;br&gt;客户端" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="100" y="150" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c-server" value="服务器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="520" y="150" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c-store" value="Cookie 存储区&lt;br&gt;sessionId=abc123" style="shape=folder;whiteSpace=wrap;html=1;tabWidth=40;tabHeight=14;tabPosition=left;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="100" y="360" width="190" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="c-login" value="1. 登录请求&lt;br&gt;POST /login&lt;br&gt;账号 + 密码" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=13;" parent="1" source="c-browser" target="c-server" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c-set" value="2. 登录成功&lt;br&gt;Set-Cookie: sessionId=abc123" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;strokeColor=#b85450;fontSize=13;" parent="1" source="c-server" target="c-browser" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="610" y="290" />
+              <mxPoint x="190" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c-save" value="3. 客户端保存 Cookie" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;strokeColor=#d6b656;fontSize=13;" parent="1" source="c-browser" target="c-store" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c-next" value="4. 后续请求自动携带&lt;br&gt;Cookie: sessionId=abc123" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=13;" parent="1" source="c-store" target="c-server" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="195" y="500" />
+              <mxPoint x="610" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c-validate" value="5. 服务器读取 Cookie&lt;br&gt;识别登录态 / 用户身份" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="790" y="350" width="220" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="c-val-edge" value="校验 Cookie" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=13;" parent="1" source="c-server" target="c-validate" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c-note" value="测试关注：Set-Cookie 是否下发；后续请求是否自动带 Cookie；Cookie 过期、删除、退出登录后是否失效" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="210" y="600" width="750" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="session-flow" name="Session工作流程">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="s-title" value="Session 工作流程" style="text;html=1;strokeColor=none;fillColor=none;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="445" y="30" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s-client" value="客户端&lt;br&gt;浏览器 / Postman" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="90" y="150" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s-server" value="服务器&lt;br&gt;登录接口 / 业务接口" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="490" y="150" width="200" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s-store" value="Session 存储&lt;br&gt;Redis / 内存 / 数据库&lt;br&gt;sess_abc123 -&gt; userId=1001" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="820" y="120" width="210" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="s-login" value="1. 登录请求&lt;br&gt;账号 + 密码" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=13;" edge="1" parent="1" source="s-client" target="s-server">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s-create" value="2. 创建 Session&lt;br&gt;sess_abc123 -&gt; userId=1001" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=13;" edge="1" parent="1" source="s-server" target="s-store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s-setcookie" value="3. 返回 sessionId&lt;br&gt;Set-Cookie: sessionId=sess_abc123" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;strokeColor=#b85450;fontSize=13;" edge="1" parent="1" source="s-server" target="s-client">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="590" y="300" />
+              <mxPoint x="180" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s-cart" value="4. 查询购物车&lt;br&gt;Cookie: sessionId=sess_abc123" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=13;" edge="1" parent="1" source="s-client" target="s-server">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="420" />
+              <mxPoint x="590" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s-lookup" value="5. 根据 sessionId 查 Session" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=13;" edge="1" parent="1" source="s-server" target="s-store">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="590" y="500" />
+              <mxPoint x="925" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s-return" value="6. 确认用户身份&lt;br&gt;只返回该用户的数据" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;strokeColor=#9673a6;fontSize=13;" edge="1" parent="1" source="s-server" target="s-client">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="590" y="590" />
+              <mxPoint x="180" y="590" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s-note" value="测试关注：sessionId 缺失、错误、过期、退出后失效；A 用户 sessionId 不能访问 B 用户数据" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="220" y="670" width="730" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
